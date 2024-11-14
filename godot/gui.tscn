@@ -1,0 +1,119 @@
+[gd_scene load_steps=7 format=3 uid="uid://bro1f47q858eq"]
+
+[ext_resource type="Script" path="res://prompt.gd" id="1_uae30"]
+
+[sub_resource type="GDScript" id="GDScript_cr3y4"]
+resource_name = "ctrl_scale"
+script/source = "extends SpinBox
+
+
+func _value_changed(new_value: float) -> void:
+	get_node(\"../../..\").overall_scale = new_value
+"
+
+[sub_resource type="GDScript" id="GDScript_2g773"]
+resource_name = "ctrl_height"
+script/source = "extends SpinBox
+
+
+func _value_changed(new_value: float) -> void:
+	get_node(\"../../..\").overall_height = new_value
+"
+
+[sub_resource type="GDScript" id="GDScript_uefrn"]
+resource_name = "ctrl_anno"
+script/source = "extends CheckBox
+
+
+func _on_toggled(toggled_on: bool) -> void:
+	get_node(\"../../..\").draw_annotation = toggled_on
+"
+
+[sub_resource type="GDScript" id="GDScript_6ymo0"]
+resource_name = "ctrl_draw"
+script/source = "extends CheckBox
+
+
+func _on_toggled(toggled_on: bool) -> void:
+	get_node(\"../../..\").draw_landmarks = toggled_on
+"
+
+[sub_resource type="GDScript" id="GDScript_e82ve"]
+resource_name = "ctrl_size"
+script/source = "extends SpinBox
+
+
+func _value_changed(new_value: float) -> void:
+	get_node(\"../../..\").marker_size = new_value
+"
+
+[node name="Gui" type="CanvasLayer"]
+
+[node name="Prompt" type="LineEdit" parent="."]
+offset_left = 20.0
+offset_top = 964.0
+offset_right = 1004.0
+offset_bottom = 1004.0
+theme_override_font_sizes/font_size = 24
+text = "A basketball player making a 3-pointer jump shot"
+script = ExtResource("1_uae30")
+
+[node name="CtrlLandmarks" type="GridContainer" parent="."]
+offset_left = 19.0
+offset_top = 20.0
+offset_right = 179.0
+offset_bottom = 175.0
+
+[node name="LabelScale" type="Label" parent="CtrlLandmarks"]
+layout_mode = 2
+text = "Overall Scale"
+
+[node name="SpinboxScale" type="SpinBox" parent="CtrlLandmarks"]
+layout_mode = 2
+max_value = 2.0
+step = 0.01
+value = 1.05
+script = SubResource("GDScript_cr3y4")
+
+[node name="LabelHeight" type="Label" parent="CtrlLandmarks"]
+layout_mode = 2
+text = "Overall Height"
+
+[node name="SpinboxHeight" type="SpinBox" parent="CtrlLandmarks"]
+layout_mode = 2
+max_value = 2.0
+step = 0.01
+value = 1.0
+script = SubResource("GDScript_2g773")
+
+[node name="CheckboxAnnotation" type="CheckBox" parent="CtrlLandmarks"]
+layout_mode = 2
+size_flags_horizontal = 8
+button_pressed = true
+text = "Draw Annotation"
+script = SubResource("GDScript_uefrn")
+
+[node name="CheckboxLandmarks" type="CheckBox" parent="CtrlLandmarks"]
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Draw Landmarks"
+script = SubResource("GDScript_6ymo0")
+
+[node name="LabelSize" type="Label" parent="CtrlLandmarks"]
+layout_mode = 2
+text = "Landmark Size"
+
+[node name="SpinboxSize" type="SpinBox" parent="CtrlLandmarks"]
+layout_mode = 2
+max_value = 0.5
+step = 0.005
+value = 0.025
+script = SubResource("GDScript_e82ve")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(860, 160)
+scale = Vector2(0.55, 0.55)
+
+[connection signal="text_submitted" from="Prompt" to="Prompt" method="_on_text_submitted"]
+[connection signal="toggled" from="CtrlLandmarks/CheckboxAnnotation" to="CtrlLandmarks/CheckboxAnnotation" method="_on_toggled"]
+[connection signal="toggled" from="CtrlLandmarks/CheckboxLandmarks" to="CtrlLandmarks/CheckboxLandmarks" method="_on_toggled"]
