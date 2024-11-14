@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://c8mtuccn2742y"]
+
+[ext_resource type="PackedScene" uid="uid://s05nrnh6ri22" path="res://mannequiney.tscn" id="1_1b86h"]
+[ext_resource type="Script" path="res://posegen.gd" id="1_ecr2j"]
+[ext_resource type="PackedScene" uid="uid://bro1f47q858eq" path="res://gui.tscn" id="3_j3sou"]
+
+[sub_resource type="GDScript" id="GDScript_xoh8c"]
+resource_name = "rotateCam"
+script/source = "extends Node3D
+
+var dragging = false
+var sensitivity = 0.01
+
+func _input(event):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		dragging = event.pressed
+	if event is InputEventMouseMotion and dragging:
+		rotation.y -= event.relative.x*sensitivity
+		rotation.x -= event.relative.y*sensitivity
+		rotation.x = clamp(rotation.x,-PI/2.0,PI/2.0)
+"
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_ecr2j")
+overall_scale = 1.05
+
+[node name="Mannequiney" parent="." instance=ExtResource("1_1b86h")]
+
+[node name="CamCentre3D" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = SubResource("GDScript_xoh8c")
+
+[node name="Camera3D" type="Camera3D" parent="CamCentre3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.61995, 1.86994)
+
+[node name="Gui" parent="." instance=ExtResource("3_j3sou")]

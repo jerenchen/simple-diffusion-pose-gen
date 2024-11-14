@@ -1,80 +1,7 @@
 #!/usr/bin/env python
-from diffusers import DiffusionPipeline, TCDScheduler
-from huggingface_hub import hf_hub_download
-from mediapipe import solutions as mps
 import torch
 import numpy
-from PIL import Image, ImageQt
-
-
-SDPG_SDMODELS = {
-  'SDXL': "stabilityai/stable-diffusion-xl-base-1.0",
-  'SD15': "stable-diffusion-v1-5/stable-diffusion-v1-5"
-}
-SDPG_BASESD = 'SD15'
-SDPG_STEPS = 8
-SDPG_DEVICE = 'cpu'
-SDPG_IMGSIZE = 512
-
-
-class SimpleDiffusionPoseGen:
-
-  def __init__(self, steps: int = SDPG_STEPS, base: str = SDPG_BASESD, device: str = SDPG_DEVICE):
-
-    # Initialize base stable diffusion model
-    dtype = torch.float32 if device=='cpu' else torch.float16
-    pipe = DiffusionPipeline.from_pretrained(SDPG_SDMODELS[base], variant="fp16",
-      torch_dtype=dtype, use_safetensors=True)
-    if device in ['cuda', 'mps']:
-      pipe.to(device)
-
-    # Set up unified LoRA & scheduler for Hyper-SD
-    ckpt = f"Hyper-{base}-{steps}steps-lora.safetensors"
-    pipe.load_lora_weights(hf_hub_download("ByteDance/Hyper-SD", ckpt))
-    pipe.fuse_lora()
-    pipe.scheduler = TCDScheduler.from_config(pipe.scheduler.config)
-
-    self._sd_pipe = pipe
-    self._sd_steps = steps
-    self._img_size = 1024 if base=='SDXL' else SDPG_IMGSIZE
-
-  def __call__(self, prompt: str, seed: int = 42):
-
-    # Generate image via SD
-    image = self._sd_pipe(
-      prompt=prompt+', realistic human pose, high quality, best quality',
-      negative_prompt='more than 2 legs, more than 2 arms, partial body, blurry, low quality',
-      eta=1.0,
-      guidance_scale=0,
-      num_inference_steps=self._sd_steps,
-      generator=torch.manual_seed(seed),
-      width=self._img_size,
-      height=self._img_size
-    ).images[0]
-
-    if self._img_size > SDPG_IMGSIZE:
-      image = image.resize((SDPG_IMGSIZE, SDPG_IMGSIZE))
-
-    # Estimate 2D/3D pose landmarks via Google MediaPipe
-    pose_segments = []
-    with mps.pose.Pose(static_image_mode=True, model_complexity=2,
-      enable_segmentation=True, min_detection_confidence=0.5) as pose:
-      # Infer pose landmarks
-      res = pose.process(numpy.asarray(image))
-      if res.pose_landmarks:
-        # Draw pose landmarks on the image
-        I = numpy.asarray(image).copy()
-        mps.drawing_utils.draw_landmarks(I, res.pose_landmarks, mps.pose.POSE_CONNECTIONS,
-          landmark_drawing_spec=mps.drawing_styles.get_default_pose_landmarks_style())
-        image = Image.fromarray(numpy.uint8(I))
-        # Store world-space landmarks
-        for i, j in mps.pose.POSE_CONNECTIONS:
-          p = res.pose_world_landmarks.landmark[i]
-          q = res.pose_world_landmarks.landmark[j]
-          pose_segments.append({i: ( p.x,-p.y,-p.z), j: ( q.x,-q.y,-q.z)})
-
-    return image, pose_segments
-
+import sys
 
 from PySide6.QtWidgets import QApplication, QWidget, QMainWindow, QDialog
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QButtonGroup
@@ -82,7 +9,9 @@ from PySide6.QtWidgets import QLabel, QLineEdit, QPushButton, QSpinBox, QFrame, 
 from PySide6.QtGui import QColor, QPixmap, QVector3D
 from PySide6.Qt3DCore import Qt3DCore
 from PySide6.Qt3DExtras import Qt3DExtras
-import sys
+from PIL import ImageQt
+
+from posegen import SimpleDiffusionPoseGen, SDPG_IMGSIZE
 
 
 class SDPoseGen3DViewer(Qt3DExtras.Qt3DWindow):
