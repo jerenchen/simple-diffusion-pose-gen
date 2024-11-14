@@ -1,7 +1,6 @@
 torch==2.3
 diffusers==0.30
 mediapipe==0.10.15
-pyside6==6.8
 transformers
 accelerate
 peft

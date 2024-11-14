@@ -4,7 +4,7 @@ A quick attempt to utilize [Stable Diffusion](https://huggingface.co/blog/stable
 
 ## News
 
-* 2024-11-12: Added a Godot demo with a full-body IK pose solver.
+* 2024-11-12: Added a Godot full-body IK pose solver.
 * 2024-10-24: Initial implementation.
 
 ## Quickstart
@@ -14,15 +14,7 @@ A quick attempt to utilize [Stable Diffusion](https://huggingface.co/blog/stable
 3. Install Python depedencies: `pip install -r requirements.txt`.
 4. Download MediaPipe [Pose Landmarker (Full)](https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task) and save the file under `python/tasks`.
 
-### Python Standalone Demo
-
-Inside dir `python`, run: `python simple-diffusion-pose-gen.py`, and then enter a prompt to generate a pose.
-
-| ![SD Pose Gen](img/sd_pose_gen.png) |
-| :---: |
-| Generating a pose with prompt *"A basketball player making a 3-pointer jump shot"* |
-
-### Godot Full-body IK Pose Gen
+### Python Pose Gen + Godot IK Solver
 
 1. Inside dir `python`, Initialize the Python pose-gen service: `python posegen.py --base sd15 --steps 8`.
 2. Open and run `projec.godot` inside dir `godot` with [Godot Engine](https://godotengine.org/).
@@ -30,15 +22,20 @@ Inside dir `python`, run: `python simple-diffusion-pose-gen.py`, and then enter 
 
 | ![SD Godot Pose Gen](img/sd_godot_pose_gen.png) |
 | :---: |
-|  |
+| Generating a pose using prompt *"A basketball player making a 3-pointer jump shot"* |
+### Standalone Python Pose Gen
+
+> NOTE: The standalone demo requires PySide6 >= v6.7.
+
+Inside dir `python`, run: `python simple-diffusion-pose-gen.py`, and then enter a prompt to generate a pose.
+
+| ![SD Settings](img/sd_settings.png) |
+| :---: |
+| ![SD Pose Gen](img/sd_pose_gen.png) |
 
 ## Stable Diffusion Model Settings
 
-|![SD Settings](img/sd_settings.png)|
-|:---:|
-|Stable diffusion model settings for the Python standalone demo|
-
-* *Stable Diffusion v1.5* has fewer model parameters and therefore requires less memory whereas *Stable Diffusion XL* could generate images with higher fidelity.
+* *SD15* has fewer model parameters and therefore requires less memory whereas *SDXL* could generate images with higher fidelity.
 * [Hyper-SD](https://hyper-sd.github.io/) (a SD inference acceleration technique) Steps: *2*, *4*, or *8*, trade-off between speed (fewer bigger steps) and quality (more smaller steps).
 * PyTorch device for running SD inference (if available): *CPU*, *CUDA*, or *MPS* (Apple Silicon).
 
