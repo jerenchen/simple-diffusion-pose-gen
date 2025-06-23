@@ -128,10 +128,10 @@ class SimpleDiffusionPoseGen:
   def as_service(self, port = SDPG_PORT):
 
     log.info("Running as a service on port {} (ctrl+c to terminate)...".format(port))
+    receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    receiver.bind(('', port))
     try:
       while True:
-        receiver = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        receiver.bind(('', port))
         conn, addr = receiver.recvfrom(1024)
         data = json.loads(conn.decode())
         if 'prompt' in data:
