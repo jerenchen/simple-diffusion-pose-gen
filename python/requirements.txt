@@ -1,4 +1,4 @@
-torch==2.6
+torch==2.7
 diffusers==0.30
 mediapipe==0.10.15
 transformers
