@@ -15,6 +15,8 @@ import string
 import argparse
 import logging
 
+from pathlib import Path
+current_dir = Path(__file__).parent
 
 log = logging.getLogger('SDPG')
 log.addHandler(logging.StreamHandler())
@@ -28,7 +30,7 @@ SDPG_BASESD = 'SD15'
 SDPG_STEPS = 8
 SDPG_DEVICE = 'cpu'
 SDPG_IMGSIZE = 512
-SDPG_TASKPATH = './tasks/pose_landmarker_full.task'
+SDPG_TASKPATH = f'{current_dir}/tasks/pose_landmarker_full.task'
 SDPG_PORT = 42442
 
 class SimpleDiffusionPoseGen:

@@ -1,4 +1,5 @@
 torch>=2.8
+torchvision==0.25
 diffusers==0.30
 mediapipe==0.10.15
 transformers
